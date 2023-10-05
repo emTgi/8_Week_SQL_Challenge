@@ -1,11 +1,11 @@
 ### 1. What is the total amount each customer spent at the restaurant?
 ```sql
 SELECT
-  customer_id,
-  SUM(price)
-FROM dannys_diner.sales
-JOIN dannys_diner.menu
-	ON sales.product_id = menu.product_id
+	customer_id,
+  	SUM(price)
+FROM dannys_diner.sales a
+JOIN dannys_diner.menu b
+	ON a.product_id = b.product_id
 GROUP BY customer_id
 ORDER BY customer_id;
 ```
@@ -23,6 +23,7 @@ SELECT
 FROM dannys_diner.sales
 GROUP BY customer_id;
 ```
+
 ### 3. What was the first item from the menu purchased by each customer?
 ##### _If each row is a separate order:_
 ```sql
