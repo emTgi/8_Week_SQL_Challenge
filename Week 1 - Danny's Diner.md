@@ -1,3 +1,8 @@
+# Case Study #1 - Danny's Diner
+![logo](https://8weeksqlchallenge.com/images/case-study-designs/1.png)
+
+
+
 ### 1. What is the total amount each customer spent at the restaurant?
 ```sql
 SELECT
