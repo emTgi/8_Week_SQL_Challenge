@@ -1,7 +1,14 @@
 # Case Study #1 - Danny's Diner
 <img src="https://8weeksqlchallenge.com/images/case-study-designs/1.png" width=50% height=50%>
 
+## Task
+Danny wants to better understand his customers, their visiting patterns, favourite items and how much money each customer spent. To answer these questions he has provided a sample of his customer data which will be used to generate insights into his clientele. Additionally, views will be created for his team to easily inspect the data without needing to use SQL.
 
+## Data Model
+
+![Week_1_Diagram](https://github.com/emTgi/8_Week_SQL_Challenge/assets/114177110/63f3104c-b8be-4efa-bc46-82dfd31ab35c)
+
+## Questions
 
 ### 1. What is the total amount each customer spent at the restaurant?
 ```sql
@@ -304,6 +311,7 @@ GROUP BY b.customer_id;
 ### 11. Bonus
 ##### Join All The Things
 ```sql
+CREATE VIEW customer_view AS (
 SELECT
 	a.customer_id,
 	order_date,
@@ -318,7 +326,8 @@ JOIN dannys_diner.menu b
 	ON a.product_id = b.product_id
 LEFT JOIN dannys_diner.members c
 	ON a.customer_id = c.customer_id
-ORDER BY a.customer_id, order_date;
+ORDER BY a.customer_id, order_date
+);
 ```
 
 | customer_id | order_date               | product_name | price | member |
@@ -341,6 +350,7 @@ ORDER BY a.customer_id, order_date;
 
 ##### Rank All The Things
 ```sql
+CREATE VIEW members_orders AS (
 WITH tb1 AS (
 	SELECT
 		a.customer_id,
@@ -365,6 +375,7 @@ SELECT 	*,
 		ELSE DENSE_RANK() OVER(PARTITION BY customer_id, member ORDER BY order_date)
 	END AS ranking
 FROM tb1
+);
 ```
 
 | customer_id | order_date               | product_name | price | member | ranking |
