@@ -27,7 +27,7 @@ WITH order_no AS (
   )
 
 SELECT
-	customer_id,
+  customer_id,
   product_name
 FROM order_no
 JOIN dannys_diner.menu AS m
@@ -38,7 +38,7 @@ WHERE cust_order_no = 1;
 ```sql
 WITH order_no AS (
   SELECT *,
-    DENSE_RANK() OVER(PARTITION BY customer_id ORDER BY order_date) AS cust_order_no
+	DENSE_RANK() OVER(PARTITION BY customer_id ORDER BY order_date) AS cust_order_no
   FROM dannys_diner.sales AS s
   )
 
