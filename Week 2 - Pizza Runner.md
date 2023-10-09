@@ -166,9 +166,9 @@ The `runner_orders` table has been successfully cleaned and data types have been
 
 ## Data Analysis
 
-### 1.Pizza Metrics
+### Pizza Metrics
 
-**1.1How many pizzas were ordered?**
+**How many pizzas were ordered?**
 ```sql
 SELECT COUNT(*)
 FROM clean_customer_orders;
@@ -177,7 +177,7 @@ FROM clean_customer_orders;
 | ----- |
 | 14    |
 
-**1.1How many unique customer orders were made?**
+**How many unique customer orders were made?**
 ```sql
 SELECT COUNT(DISTINCT order_id)
 FROM clean_customer_orders;
@@ -188,12 +188,12 @@ FROM clean_customer_orders;
 
 **How many successful orders were delivered by each runner?**
 ```sql
-    SELECT 
-    	runner_id,
-        COUNT(*) AS orders_delivered
-    FROM clean_runner_orders
-    WHERE pickup_time IS NOT NULL
-    GROUP BY runner_id;
+SELECT 
+  runner_id,
+  COUNT(*) AS orders_delivered
+FROM clean_runner_orders
+WHERE pickup_time IS NOT NULL
+GROUP BY runner_id;
 ```
 | runner_id | orders_delivered |
 | --------- | ---------------- |
@@ -203,16 +203,16 @@ FROM clean_customer_orders;
 
 **How many of each type of pizza was delivered?**
 ```sql
-    SELECT
-    	pizza_name,
-        COUNT(*) AS orders_delivered
-    FROM clean_customer_orders a
-    JOIN clean_runner_orders b
-    	ON a.order_id = b.order_id
-    JOIN pizza_names c
-    	ON a.pizza_id = c.pizza_id
-    WHERE pickup_time IS NOT NULL
-    GROUP BY pizza_name;
+SELECT
+  pizza_name,
+  COUNT(*) AS orders_delivered
+FROM clean_customer_orders a
+JOIN clean_runner_orders b
+  ON a.order_id = b.order_id
+JOIN pizza_names c
+  ON a.pizza_id = c.pizza_id
+WHERE pickup_time IS NOT NULL
+GROUP BY pizza_name;
 ```
 | pizza_name | orders_delivered |
 | ---------- | ---------------- |
@@ -221,17 +221,17 @@ FROM clean_customer_orders;
 
 **How many Vegetarian and Meatlovers were ordered by each customer?**
 ```sql
-    SELECT
-    	customer_id,
-        pizza_name,
-        COUNT(*)
-    FROM clean_customer_orders a
-    JOIN pizza_names b
-    	ON a.pizza_id = b.pizza_id
-    GROUP BY 
-    	customer_id, 
-        pizza_name
-    ORDER BY customer_id;
+SELECT
+  customer_id,
+  pizza_name,
+  COUNT(*)
+FROM clean_customer_orders a
+JOIN pizza_names b
+  ON a.pizza_id = b.pizza_id
+GROUP BY 
+  customer_id, 
+  pizza_name
+ORDER BY customer_id;
 ```
 | customer_id | pizza_name | count |
 | ----------- | ---------- | ----- |
@@ -246,16 +246,16 @@ FROM clean_customer_orders;
 
 **What was the maximum number of pizzas delivered in a single order?**
 ```sql
-    SELECT
-    	a.order_id,
-        COUNT(pizza_id) AS orders_delivered
-    FROM clean_customer_orders a
-    JOIN clean_runner_orders b
-    	ON a.order_id = b.order_id
-    WHERE pickup_time IS NOT NULL
-    GROUP BY a.order_id
-    ORDER BY orders_delivered DESC
-    LIMIT 1;
+SELECT
+  a.order_id,
+  COUNT(pizza_id) AS orders_delivered
+FROM clean_customer_orders a
+JOIN clean_runner_orders b
+  ON a.order_id = b.order_id
+WHERE pickup_time IS NOT NULL
+GROUP BY a.order_id
+ORDER BY orders_delivered DESC
+LIMIT 1;
 ```
 | order_id | orders_delivered |
 | -------- | ---------------- |
@@ -263,22 +263,22 @@ FROM clean_customer_orders;
 
 **For each customer, how many delivered pizzas had at least 1 change and how many had no changes?**
 ```sql
-    SELECT
-    	customer_id,
-        SUM(CASE
-        	WHEN exclusions <> '' OR extras <> '' THEN 1
-            ELSE 0
-    	END) customised_orders,
-        SUM(CASE
-        	WHEN exclusions = '' AND extras = '' THEN 1
-            ELSE 0
-    	END) uncustomised_orders
-    FROM clean_customer_orders a
-    JOIN clean_runner_orders b
-    	ON a.order_id = b.order_id
-    WHERE pickup_time IS NOT NULL
-    GROUP BY customer_id
-    ORDER BY customer_id;
+SELECT
+  customer_id,
+  SUM(CASE
+    WHEN exclusions <> '' OR extras <> '' THEN 1
+    ELSE 0
+  END) customised_orders,
+  SUM(CASE
+    WHEN exclusions = '' AND extras = '' THEN 1
+    ELSE 0
+  END) uncustomised_orders
+FROM clean_customer_orders a
+JOIN clean_runner_orders b
+  ON a.order_id = b.order_id
+WHERE pickup_time IS NOT NULL
+GROUP BY customer_id
+ORDER BY customer_id;
 ```
 | customer_id | customised_orders | uncustomised_orders |
 | ----------- | ----------------- | ------------------- |
@@ -290,15 +290,15 @@ FROM clean_customer_orders;
 
 **How many pizzas were delivered that had both exclusions and extras?**
 ```sql
-    SELECT
-        SUM(CASE
-        	WHEN exclusions <> '' AND extras <> '' THEN 1
-            ELSE 0
-    	END)
-    FROM clean_customer_orders a
-    JOIN clean_runner_orders b
-    	ON a.order_id = b.order_id
-    WHERE pickup_time IS NOT NULL;
+SELECT
+  SUM(CASE
+    WHEN exclusions <> '' AND extras <> '' THEN 1
+    ELSE 0
+  END)
+FROM clean_customer_orders a
+JOIN clean_runner_orders b
+  ON a.order_id = b.order_id
+WHERE pickup_time IS NOT NULL;
 ```
 | sum |
 | --- |
@@ -306,12 +306,12 @@ FROM clean_customer_orders;
 
 **What was the total volume of pizzas ordered for each hour of the day?**
 ```sql
-    SELECT
-    	EXTRACT(HOUR FROM order_time) AS hour,
-        COUNT(pizza_id)    
-    FROM clean_customer_orders
-    GROUP BY hour
-    ORDER BY hour;
+SELECT
+  EXTRACT(HOUR FROM order_time) AS hour,
+  COUNT(pizza_id)    
+FROM clean_customer_orders
+GROUP BY hour
+ORDER BY hour;
 ```
 | hour | count |
 | ---- | ----- |
@@ -324,11 +324,11 @@ FROM clean_customer_orders;
 
 **What was the volume of orders for each day of the week?**
 ```sql
-    SELECT
-    	TO_CHAR(order_time, 'Day') AS day,
-        COUNT(DISTINCT order_id)
-    FROM clean_customer_orders
-    GROUP BY day;
+SELECT
+  TO_CHAR(order_time, 'Day') AS day,
+  COUNT(DISTINCT order_id)
+FROM clean_customer_orders
+GROUP BY day;
 ```
 | day       | count |
 | --------- | ----- |
