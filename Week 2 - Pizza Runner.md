@@ -166,9 +166,9 @@ The `runner_orders` table has been successfully cleaned and data types have been
 
 ## Data Analysis
 
-### Pizza Metrics
+### 1.Pizza Metrics
 
-**How many pizzas were ordered?**
+**1.1How many pizzas were ordered?**
 ```sql
 SELECT COUNT(*)
 FROM clean_customer_orders;
@@ -177,7 +177,7 @@ FROM clean_customer_orders;
 | ----- |
 | 14    |
 
-**How many unique customer orders were made?**
+**1.1How many unique customer orders were made?**
 ```sql
 SELECT COUNT(DISTINCT order_id)
 FROM clean_customer_orders;
