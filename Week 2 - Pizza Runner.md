@@ -85,3 +85,83 @@ The `customer_orders` table has been successfully cleaned as you can see below:
 | 10       | 104         | 1        |            |        | 2020-01-11T18:34:49.000Z |
 | 10       | 104         | 1        | 2, 6       | 1, 4   | 2020-01-11T18:34:49.000Z |
 
+The second table `runner_orders` currently looks like this:
+```sql
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'runner_orders';
+
+SELECT * FROM runner_orders;
+```
+
+| column_name  | data_type         |
+| ------------ | ----------------- |
+| order_id     | integer           |
+| runner_id    | integer           |
+| pickup_time  | character varying |
+| distance     | character varying |
+| duration     | character varying |
+| cancellation | character varying |
+
+| order_id | runner_id | pickup_time         | distance | duration   | cancellation            |
+| -------- | --------- | ------------------- | -------- | ---------- | ----------------------- |
+| 1        | 1         | 2020-01-01 18:15:34 | 20km     | 32 minutes |                         |
+| 2        | 1         | 2020-01-01 19:10:54 | 20km     | 27 minutes |                         |
+| 3        | 1         | 2020-01-03 00:12:37 | 13.4km   | 20 mins    |                         |
+| 4        | 2         | 2020-01-04 13:53:03 | 23.4     | 40         |                         |
+| 5        | 3         | 2020-01-08 21:10:57 | 10       | 15         |                         |
+| 6        | 3         | null                | null     | null       | Restaurant Cancellation |
+| 7        | 2         | 2020-01-08 21:30:45 | 25km     | 25mins     | null                    |
+| 8        | 2         | 2020-01-10 00:15:02 | 23.4 km  | 15 minute  | null                    |
+| 9        | 2         | null                | null     | null       | Customer Cancellation   |
+| 10       | 1         | 2020-01-11 18:50:20 | 10km     | 10minutes  | null                    |
+
+As seen above, both `distance` and `duration` columns have inconsistent value formats, so we will be removing everything except for numbers and changing the data type to a numeric one. Also, from `pickup_time` and `cancellation` columns we will remove 'null' values and change the data type of `pickup_time` to a date/time type.
+```sql
+CREATE TEMPORARY TABLE clean_runner_orders AS
+  SELECT
+    order_id,
+    runner_id,
+    CAST(CASE
+      WHEN pickup_time LIKE '%null%' THEN NULL --TIMESTAMP cannot store blank spaces
+      ELSE pickup_time
+    END AS TIMESTAMP) pickup_time,
+    CAST(CASE
+      WHEN distance LIKE '%null%' THEN NULL --FLOAT cannot store blank spaces
+      ELSE TRIM(TRIM('km' FROM distance))
+    END AS FLOAT) distance,
+    CAST(CASE
+      WHEN duration LIKE '%null%' THEN NULL --INT cannot store blank spaces
+      ELSE TRIM(TRIM('minutes' FROM duration))
+    END AS INTEGER) duration,
+    CASE
+      WHEN cancellation IS NULL OR cancellation LIKE '%null%' THEN ''
+      ELSE cancellation
+    END AS cancellation
+  FROM runner_orders;
+```
+The `runner_orders` table has been successfully cleaned and data types have been changed as you can see below:
+
+| column_name  | data_type                   |
+| ------------ | --------------------------- |
+| order_id     | integer                     |
+| runner_id    | integer                     |
+| pickup_time  | timestamp without time zone |
+| distance     | double precision            |
+| duration     | integer                     |
+| cancellation | character varying           |
+
+| order_id | runner_id | pickup_time              | distance | duration | cancellation            |
+| -------- | --------- | ------------------------ | -------- | -------- | ----------------------- |
+| 1        | 1         | 2020-01-01T18:15:34.000Z | 20       | 32       |                         |
+| 2        | 1         | 2020-01-01T19:10:54.000Z | 20       | 27       |                         |
+| 3        | 1         | 2020-01-03T00:12:37.000Z | 13.4     | 20       |                         |
+| 4        | 2         | 2020-01-04T13:53:03.000Z | 23.4     | 40       |                         |
+| 5        | 3         | 2020-01-08T21:10:57.000Z | 10       | 15       |                         |
+| 6        | 3         |                          |          |          | Restaurant Cancellation |
+| 7        | 2         | 2020-01-08T21:30:45.000Z | 25       | 25       |                         |
+| 8        | 2         | 2020-01-10T00:15:02.000Z | 23.4     | 15       |                         |
+| 9        | 2         |                          |          |          | Customer Cancellation   |
+| 10       | 1         | 2020-01-11T18:50:20.000Z | 10       | 10       |                         |
+
+## Data Analysis
