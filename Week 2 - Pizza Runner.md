@@ -165,3 +165,174 @@ The `runner_orders` table has been successfully cleaned and data types have been
 | 10       | 1         | 2020-01-11T18:50:20.000Z | 10       | 10       |                         |
 
 ## Data Analysis
+
+### Pizza Metrics
+
+**How many pizzas were ordered?**
+```sql
+SELECT COUNT(*)
+FROM clean_customer_orders;
+```
+| count |
+| ----- |
+| 14    |
+
+**How many unique customer orders were made?**
+```sql
+SELECT COUNT(DISTINCT order_id)
+FROM clean_customer_orders;
+```
+| count |
+| ----- |
+| 10    |
+
+**How many successful orders were delivered by each runner?**
+```sql
+    SELECT 
+    	runner_id,
+        COUNT(*) AS orders_delivered
+    FROM clean_runner_orders
+    WHERE pickup_time IS NOT NULL
+    GROUP BY runner_id;
+```
+| runner_id | orders_delivered |
+| --------- | ---------------- |
+| 3         | 1                |
+| 2         | 3                |
+| 1         | 4                |
+
+**How many of each type of pizza was delivered?**
+```sql
+    SELECT
+    	pizza_name,
+        COUNT(*) AS orders_delivered
+    FROM clean_customer_orders a
+    JOIN clean_runner_orders b
+    	ON a.order_id = b.order_id
+    JOIN pizza_names c
+    	ON a.pizza_id = c.pizza_id
+    WHERE pickup_time IS NOT NULL
+    GROUP BY pizza_name;
+```
+| pizza_name | orders_delivered |
+| ---------- | ---------------- |
+| Meatlovers | 9                |
+| Vegetarian | 3                |
+
+**How many Vegetarian and Meatlovers were ordered by each customer?**
+```sql
+    SELECT
+    	customer_id,
+        pizza_name,
+        COUNT(*)
+    FROM clean_customer_orders a
+    JOIN pizza_names b
+    	ON a.pizza_id = b.pizza_id
+    GROUP BY 
+    	customer_id, 
+        pizza_name
+    ORDER BY customer_id;
+```
+| customer_id | pizza_name | count |
+| ----------- | ---------- | ----- |
+| 101         | Meatlovers | 2     |
+| 101         | Vegetarian | 1     |
+| 102         | Meatlovers | 2     |
+| 102         | Vegetarian | 1     |
+| 103         | Meatlovers | 3     |
+| 103         | Vegetarian | 1     |
+| 104         | Meatlovers | 3     |
+| 105         | Vegetarian | 1     |
+
+**What was the maximum number of pizzas delivered in a single order?**
+```sql
+    SELECT
+    	a.order_id,
+        COUNT(pizza_id) AS orders_delivered
+    FROM clean_customer_orders a
+    JOIN clean_runner_orders b
+    	ON a.order_id = b.order_id
+    WHERE pickup_time IS NOT NULL
+    GROUP BY a.order_id
+    ORDER BY orders_delivered DESC
+    LIMIT 1;
+```
+| order_id | orders_delivered |
+| -------- | ---------------- |
+| 4        | 3                |
+
+**For each customer, how many delivered pizzas had at least 1 change and how many had no changes?**
+```sql
+    SELECT
+    	customer_id,
+        SUM(CASE
+        	WHEN exclusions <> '' OR extras <> '' THEN 1
+            ELSE 0
+    	END) customised_orders,
+        SUM(CASE
+        	WHEN exclusions = '' AND extras = '' THEN 1
+            ELSE 0
+    	END) uncustomised_orders
+    FROM clean_customer_orders a
+    JOIN clean_runner_orders b
+    	ON a.order_id = b.order_id
+    WHERE pickup_time IS NOT NULL
+    GROUP BY customer_id
+    ORDER BY customer_id;
+```
+| customer_id | customised_orders | uncustomised_orders |
+| ----------- | ----------------- | ------------------- |
+| 101         | 0                 | 2                   |
+| 102         | 0                 | 3                   |
+| 103         | 3                 | 0                   |
+| 104         | 2                 | 1                   |
+| 105         | 1                 | 0                   |
+
+**How many pizzas were delivered that had both exclusions and extras?**
+```sql
+    SELECT
+        SUM(CASE
+        	WHEN exclusions <> '' AND extras <> '' THEN 1
+            ELSE 0
+    	END)
+    FROM clean_customer_orders a
+    JOIN clean_runner_orders b
+    	ON a.order_id = b.order_id
+    WHERE pickup_time IS NOT NULL;
+```
+| sum |
+| --- |
+| 1   |
+
+**What was the total volume of pizzas ordered for each hour of the day?**
+```sql
+    SELECT
+    	EXTRACT(HOUR FROM order_time) AS hour,
+        COUNT(pizza_id)    
+    FROM clean_customer_orders
+    GROUP BY hour
+    ORDER BY hour;
+```
+| hour | count |
+| ---- | ----- |
+| 11   | 1     |
+| 13   | 3     |
+| 18   | 3     |
+| 19   | 1     |
+| 21   | 3     |
+| 23   | 3     |
+
+**What was the volume of orders for each day of the week?**
+```sql
+    SELECT
+    	TO_CHAR(order_time, 'Day') AS day,
+        COUNT(DISTINCT order_id)
+    FROM clean_customer_orders
+    GROUP BY day;
+```
+| day       | count |
+| --------- | ----- |
+| Friday    | 1     |
+| Saturday  | 2     |
+| Thursday  | 2     |
+| Wednesday | 5     |
