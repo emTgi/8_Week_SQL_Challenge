@@ -6,7 +6,7 @@
 2. [Data Model](#data-model)
 3. [Data Cleaning](#data-cleaning)
 4. [Data Analysis](#data-analysis)
-    - [Pizza Metrics](#pizza-metric)
+    - [Pizza Metrics](#pizza-metrics)
     - [Runner and Customer Experience](#runner_and_customer_experience)
 
 ## Task
