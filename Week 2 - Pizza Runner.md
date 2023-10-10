@@ -339,3 +339,131 @@ GROUP BY day;
 | Saturday  | 2     |
 | Thursday  | 2     |
 | Wednesday | 5     |
+
+### Runner and Customer Experience
+
+**How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)**
+```sql
+SELECT
+  DATE_PART('week', registration_date + interval '3 day') AS week, --3 days have been added for the week to start on the date specified
+  COUNT(*)
+FROM runners
+GROUP BY week
+ORDER BY week;
+```
+| week | count |
+| ---- | ----- |
+| 1    | 2     |
+| 2    | 1     |
+| 3    | 1     |
+
+**What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?**
+```sql
+SELECT
+  runner_id,
+  AVG(time)
+FROM (
+  SELECT
+    a.order_id,
+    runner_id,
+    EXTRACT(MINUTE FROM pickup_time - order_time) AS time
+  FROM clean_runner_orders a
+  JOIN clean_customer_orders b
+    ON a.order_id = b.order_id
+  WHERE pickup_time IS NOT NULL
+  GROUP BY a.order_id, runner_id, time) sub
+GROUP BY runner_id
+ORDER BY runner_id;
+```
+| runner_id | avg                |
+| --------- | ------------------ |
+| 1         | 14                 |
+| 2         | 19.666666666666668 |
+| 3         | 10                 |
+
+**Is there any relationship between the number of pizzas and how long the order takes to prepare?**
+```sql
+SELECT corr(pizza_volume, time) AS corr_coef
+FROM (
+  SELECT
+    a.order_id,
+    COUNT(b.order_id) pizza_volume,
+    EXTRACT(MINUTE FROM pickup_time - order_time) AS time
+  FROM clean_runner_orders a
+  JOIN clean_customer_orders b
+    ON a.order_id = b.order_id
+  WHERE pickup_time IS NOT NULL
+  GROUP BY a.order_id, time) sub;
+```
+| corr_coef          |
+| ------------------ |
+| 0.8372508882083807 |
+The result shows a strong positive correlation, so when the number of pizza increases the time to prepare the orders increases as well.
+
+**What was the average distance travelled for each customer?**
+```sql
+SELECT
+  customer_id,
+  AVG(distance)
+FROM clean_runner_orders a
+JOIN clean_customer_orders b
+  ON a.order_id = b.order_id
+WHERE pickup_time IS NOT NULL
+GROUP BY customer_id
+ORDER BY customer_id;
+```
+| customer_id | avg                |
+| ----------- | ------------------ |
+| 101         | 20                 |
+| 102         | 16.733333333333334 |
+| 103         | 23.399999999999995 |
+| 104         | 10                 |
+| 105         | 25                 |
+
+**What was the difference between the longest and shortest delivery times for all orders?**
+```sql
+SELECT MAX(duration) - MIN(duration) AS delivery_diff
+FROM clean_runner_orders;
+```
+| delivery_diff |
+| ------------- |
+| 30            |
+
+**What was the average speed for each runner for each delivery and do you notice any trend for these values?**
+```sql
+SELECT
+  a.order_id,
+  runner_id,
+  (distance*60/duration) AS avg_speed
+FROM clean_runner_orders a
+JOIN clean_customer_orders b
+  ON a.order_id = b.order_id
+WHERE pickup_time IS NOT NULL
+GROUP BY a.order_id, runner_id, avg_speed
+ORDER BY a.order_id;
+```
+| order_id | runner_id | avg_speed         |
+| -------- | --------- | ----------------- |
+| 1        | 1         | 37.5              |
+| 2        | 1         | 44.44444444444444 |
+| 3        | 1         | 40.2              |
+| 4        | 2         | 35.1              |
+| 5        | 3         | 40                |
+| 7        | 2         | 60                |
+| 8        | 2         | 93.6              |
+| 10       | 1         | 60                |
+
+**What is the successful delivery percentage for each runner?**
+```sql
+SELECT 
+  runner_id,
+  ROUND(100*COUNT(pickup_time)/COUNT(*)) AS successful_orders_perc
+FROM clean_runner_orders
+GROUP BY runner_id
+ORDER BY runner_id;
+```
+| runner_id | successful_orders_perc |
+| --------- | ---------------------- |
+| 1         | 100                    |
+| 2         | 75                     |
+| 3         | 50                     |
