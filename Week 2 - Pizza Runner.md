@@ -2,7 +2,12 @@
 <img src="https://8weeksqlchallenge.com/images/case-study-designs/2.png" width=50% height=50%>
 
 ## Table of Contents
-[Task](#task)
+1. [Task](#task)
+2. [Data Model](#data-model)
+3. [Data Cleaning](#data-cleaning)
+4. [Data Analysis](#data-analysis)
+  1. [Pizza Metrics](#pizza-metric)
+  2. [Runner and Customer Experience](#runner_and_customer_experience)
 
 ## Task
 Danny has opened a new business called "Pizza Runners", which specialises in delivering fresh pizza through "runners". Danny understands that data is crucial for business growth so he already set up a database, but it needs some cleaning. Also, he wants to optimise his business operations by analysing current data.
