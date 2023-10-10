@@ -7,7 +7,7 @@
 3. [Data Cleaning](#data-cleaning)
 4. [Data Analysis](#data-analysis)
     - [Pizza Metrics](#pizza-metrics)
-    - [Runner and Customer Experience](#runner_and_customer_experience)
+    - [Runner and Customer Experience](#runner-and-customer-experience)
 
 ## Task
 Danny has opened a new business called "Pizza Runners", which specialises in delivering fresh pizza through "runners". Danny understands that data is crucial for business growth so he already set up a database, but it needs some cleaning. Also, he wants to optimise his business operations by analysing current data.
