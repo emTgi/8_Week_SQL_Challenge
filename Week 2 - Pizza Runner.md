@@ -265,11 +265,13 @@ LIMIT 1;
 ```sql
 SELECT
   customer_id,
-  SUM(CASE
+  SUM(
+  CASE
     WHEN exclusions <> '' OR extras <> '' THEN 1
     ELSE 0
   END) customised_orders,
-  SUM(CASE
+  SUM(
+  CASE
     WHEN exclusions = '' AND extras = '' THEN 1
     ELSE 0
   END) uncustomised_orders
@@ -291,7 +293,8 @@ ORDER BY customer_id;
 **How many pizzas were delivered that had both exclusions and extras?**
 ```sql
 SELECT
-  SUM(CASE
+  SUM(
+  CASE
     WHEN exclusions <> '' AND extras <> '' THEN 1
     ELSE 0
   END)
