@@ -476,22 +476,24 @@ ORDER BY runner_id;
 | 2         | 75                     |
 | 3         | 50                     |
 
+### Bonus Questions
+
 **What are the standard ingredients for each pizza?**
 ```sql
 WITH toppings_rank AS (
-    SELECT *,
+  SELECT *,
     RANK() OVER(PARTITION BY toppings ORDER BY pizza_id) AS rnk
-    FROM(
-        SELECT
-            pizza_id,
-            UNNEST(STRING_TO_ARRAY(toppings, ',')::INTEGER[]) AS toppings
-        FROM pizza_recipes) sub
+  FROM(
+    SELECT
+      pizza_id,
+      UNNEST(STRING_TO_ARRAY(toppings, ',')::INTEGER[]) AS toppings
+    FROM pizza_recipes) sub
 )
      
 SELECT topping_name
 FROM toppings_rank a
 JOIN pizza_toppings b
-    ON a.toppings = b.topping_id
+  ON a.toppings = b.topping_id
 WHERE rnk >= 2;
 ```
 | topping_name |
@@ -502,15 +504,15 @@ WHERE rnk >= 2;
 **What was the most commonly added extra?**
 ```sql
 SELECT
-    topping_name,
-    COUNT(*)
+  topping_name,
+  COUNT(*)
 FROM(
-    SELECT 
-        UNNEST(STRING_TO_ARRAY(extras, ',')::INTEGER[]) AS extras
-    FROM clean_customer_orders
-    WHERE extras != '') a
+  SELECT 
+    UNNEST(STRING_TO_ARRAY(extras, ',')::INTEGER[]) AS extras
+  FROM clean_customer_orders
+  WHERE extras != '') a
 JOIN pizza_toppings b
-    ON a.extras=b.topping_id
+  ON a.extras=b.topping_id
 GROUP BY topping_name
 ORDER BY count(*) DESC
 LIMIT 1;
@@ -522,15 +524,15 @@ LIMIT 1;
 **What was the most common exclusion?**
 ```sql
 SELECT
-    topping_name,
-    COUNT(*)
+  topping_name,
+  COUNT(*)
 FROM(
-    SELECT 
-        UNNEST(STRING_TO_ARRAY(exclusions, ',')::INTEGER[]) AS exclusions
-    FROM clean_customer_orders
-    WHERE exclusions != '') a
+  SELECT 
+    UNNEST(STRING_TO_ARRAY(exclusions, ',')::INTEGER[]) AS exclusions
+  FROM clean_customer_orders
+  WHERE exclusions != '') a
 JOIN pizza_toppings b
-    ON a.exclusions=b.topping_id
+  ON a.exclusions=b.topping_id
 GROUP BY topping_name
 ORDER BY count(*) DESC
 LIMIT 1;
@@ -538,3 +540,86 @@ LIMIT 1;
 | topping_name | count |
 | ------------ | ----- |
 | Cheese       | 4     |
+
+**If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?**
+```sql
+SELECT
+  SUM(
+  CASE
+    WHEN pizza_id = 1 THEN 12
+    ELSE 10
+  END) AS revenue
+FROM clean_customer_orders a
+JOIN clean_runner_orders b
+  ON a.order_id = b.order_id
+WHERE cancellation = '';
+```
+| revenue |
+| ------- |
+| 138     |
+
+**What if there was an additional $1 charge for any pizza extras? - And cheese is $1 extra**
+```sql
+WITH revenue AS (
+  SELECT
+    SUM(
+    CASE
+      WHEN pizza_id = 1 THEN 12
+      ELSE 10
+    END) AS revenue
+  FROM clean_customer_orders a
+  JOIN clean_runner_orders b
+    ON a.order_id = b.order_id
+  WHERE cancellation = ''
+),
+    
+extras AS (
+  SELECT
+    SUM(
+    CASE
+      WHEN extras = 4 THEN 2
+      ELSE 1
+    END) AS extras_revenue
+  FROM(
+    SELECT
+      UNNEST(STRING_TO_ARRAY(extras, ',')::INTEGER[]) AS extras
+    FROM clean_customer_orders a
+    JOIN clean_runner_orders b
+      ON a.order_id = b.order_id
+    WHERE cancellation = '') sub
+)
+    
+SELECT revenue + extras_revenue AS total_revenue
+FROM
+  revenue,
+  extras;
+```
+| total_revenue |
+| ------------- |
+| 143           |
+
+**If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?**
+```sql
+WITH pizza_costs AS (
+  SELECT
+    a.order_id,
+    SUM(
+    CASE
+      WHEN pizza_id = 1 THEN 12
+      ELSE 10
+    END) AS revenue,
+    distance
+  FROM clean_customer_orders a
+  JOIN clean_runner_orders b
+    ON a.order_id = b.order_id
+  WHERE cancellation = ''
+  GROUP BY a.order_id, distance
+)
+    
+SELECT
+  SUM(revenue) - SUM(distance)*0.3 AS profit
+FROM pizza_costs;
+```
+| profit |
+| ------ |
+| 94.44  |
