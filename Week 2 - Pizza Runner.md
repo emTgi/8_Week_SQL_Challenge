@@ -177,7 +177,7 @@ The `runner_orders` table has been successfully cleaned and data types have been
 
 ### Pizza Metrics
 
-**How many pizzas were ordered?**
+**1. How many pizzas were ordered?**
 ```sql
 SELECT COUNT(*)
 FROM clean_customer_orders;
@@ -186,7 +186,7 @@ FROM clean_customer_orders;
 | ----- |
 | 14    |
 
-**How many unique customer orders were made?**
+**2. How many unique customer orders were made?**
 ```sql
 SELECT COUNT(DISTINCT order_id)
 FROM clean_customer_orders;
@@ -195,7 +195,7 @@ FROM clean_customer_orders;
 | ----- |
 | 10    |
 
-**How many successful orders were delivered by each runner?**
+**3. How many successful orders were delivered by each runner?**
 ```sql
 SELECT 
   runner_id,
@@ -210,7 +210,7 @@ GROUP BY runner_id;
 | 2         | 3                |
 | 1         | 4                |
 
-**How many of each type of pizza was delivered?**
+**4. How many of each type of pizza was delivered?**
 ```sql
 SELECT
   pizza_name,
@@ -228,7 +228,7 @@ GROUP BY pizza_name;
 | Meatlovers | 9                |
 | Vegetarian | 3                |
 
-**How many Vegetarian and Meatlovers were ordered by each customer?**
+**5. How many Vegetarian and Meatlovers were ordered by each customer?**
 ```sql
 SELECT
   customer_id,
@@ -253,7 +253,7 @@ ORDER BY customer_id;
 | 104         | Meatlovers | 3     |
 | 105         | Vegetarian | 1     |
 
-**What was the maximum number of pizzas delivered in a single order?**
+**6. What was the maximum number of pizzas delivered in a single order?**
 ```sql
 SELECT
   a.order_id,
@@ -270,7 +270,7 @@ LIMIT 1;
 | -------- | ---------------- |
 | 4        | 3                |
 
-**For each customer, how many delivered pizzas had at least 1 change and how many had no changes?**
+**7. For each customer, how many delivered pizzas had at least 1 change and how many had no changes?**
 ```sql
 SELECT
   customer_id,
@@ -299,7 +299,7 @@ ORDER BY customer_id;
 | 104         | 2                 | 1                   |
 | 105         | 1                 | 0                   |
 
-**How many pizzas were delivered that had both exclusions and extras?**
+**8. How many pizzas were delivered that had both exclusions and extras?**
 ```sql
 SELECT
   SUM(
@@ -316,7 +316,7 @@ WHERE pickup_time IS NOT NULL;
 | --- |
 | 1   |
 
-**What was the total volume of pizzas ordered for each hour of the day?**
+**9. What was the total volume of pizzas ordered for each hour of the day?**
 ```sql
 SELECT
   EXTRACT(HOUR FROM order_time) AS hour,
@@ -334,7 +334,7 @@ ORDER BY hour;
 | 21   | 3     |
 | 23   | 3     |
 
-**What was the volume of orders for each day of the week?**
+**10. What was the volume of orders for each day of the week?**
 ```sql
 SELECT
   TO_CHAR(order_time, 'Day') AS day,
@@ -351,7 +351,7 @@ GROUP BY day;
 
 ### Runner and Customer Experience
 
-**How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)**
+**1. How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)**
 ```sql
 SELECT
   DATE_PART('week', registration_date + interval '3 day') AS week, --3 days have been added for the week to start on the date specified
@@ -366,7 +366,7 @@ ORDER BY week;
 | 2    | 1     |
 | 3    | 1     |
 
-**What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?**
+**2. What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?**
 ```sql
 SELECT
   runner_id,
@@ -390,7 +390,7 @@ ORDER BY runner_id;
 | 2         | 19.666666666666668 |
 | 3         | 10                 |
 
-**Is there any relationship between the number of pizzas and how long the order takes to prepare?**
+**3. Is there any relationship between the number of pizzas and how long the order takes to prepare?**
 ```sql
 SELECT corr(pizza_volume, time) AS corr_coef
 FROM (
@@ -409,7 +409,7 @@ FROM (
 | 0.8372508882083807 |
 The result shows a strong positive correlation, so when the number of pizza increases the time to prepare the orders increases as well.
 
-**What was the average distance travelled for each customer?**
+**4. What was the average distance travelled for each customer?**
 ```sql
 SELECT
   customer_id,
@@ -429,7 +429,7 @@ ORDER BY customer_id;
 | 104         | 10                 |
 | 105         | 25                 |
 
-**What was the difference between the longest and shortest delivery times for all orders?**
+**5. What was the difference between the longest and shortest delivery times for all orders?**
 ```sql
 SELECT MAX(duration) - MIN(duration) AS delivery_diff
 FROM clean_runner_orders;
@@ -438,7 +438,7 @@ FROM clean_runner_orders;
 | ------------- |
 | 30            |
 
-**What was the average speed for each runner for each delivery and do you notice any trend for these values?**
+**6. What was the average speed for each runner for each delivery and do you notice any trend for these values?**
 ```sql
 SELECT
   a.order_id,
@@ -462,7 +462,7 @@ ORDER BY a.order_id;
 | 8        | 2         | 93.6              |
 | 10       | 1         | 60                |
 
-**What is the successful delivery percentage for each runner?**
+**7. What is the successful delivery percentage for each runner?**
 ```sql
 SELECT 
   runner_id,
@@ -479,7 +479,7 @@ ORDER BY runner_id;
 
 ### Bonus Questions
 
-**What are the standard ingredients for each pizza?**
+**1. What are the standard ingredients for each pizza?**
 ```sql
 WITH toppings_rank AS (
   SELECT *,
@@ -502,7 +502,7 @@ WHERE rnk >= 2;
 | Cheese       |
 | Mushrooms    |
 
-**What was the most commonly added extra?**
+**2. What was the most commonly added extra?**
 ```sql
 SELECT
   topping_name,
@@ -522,7 +522,7 @@ LIMIT 1;
 | ------------ | ----- |
 | Bacon        | 4     |
 
-**What was the most common exclusion?**
+**3. What was the most common exclusion?**
 ```sql
 SELECT
   topping_name,
@@ -542,7 +542,7 @@ LIMIT 1;
 | ------------ | ----- |
 | Cheese       | 4     |
 
-**If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?**
+**4. If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?**
 ```sql
 SELECT
   SUM(
@@ -559,7 +559,7 @@ WHERE cancellation = '';
 | ------- |
 | 138     |
 
-**What if there was an additional $1 charge for any pizza extras? - And cheese is $1 extra**
+**5. What if there was an additional $1 charge for any pizza extras? - And cheese is $1 extra**
 ```sql
 WITH revenue AS (
   SELECT
@@ -599,7 +599,7 @@ FROM
 | ------------- |
 | 143           |
 
-**If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?**
+**6. If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?**
 ```sql
 WITH pizza_costs AS (
   SELECT
