@@ -201,6 +201,30 @@ The task is to analyze subscription-based data for Foodie-Fi, a food-related str
 | ----- |
 | 195   |
 
+**Query #2**
+
+    WITH trial AS (
+      SELECT *
+      FROM subscriptions
+      WHERE plan_id = 0
+    ),
+    
+    annual AS (
+      SELECT *
+      FROM subscriptions
+      WHERE plan_id = 3
+    )
+    
+    SELECT
+    	ROUND(AVG(a.start_date - b.start_date))
+    FROM annual a
+    JOIN trial b
+    	ON a.customer_id = b.customer_id;
+
+| round |
+| ----- |
+| 105   |
+
 ### Challenge Payment Question
 
 ### Outside The Box Questions
