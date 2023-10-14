@@ -214,6 +214,23 @@ JOIN trial b
 | ----- |
 | 105   |
 
+**Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)**
+
+**How many customers downgraded from a pro monthly to a basic monthly plan in 2020?**
+```sql
+SELECT COUNT(*)
+FROM (
+  SELECT *,
+    LEAD(plan_id) OVER(PARTITION BY customer_id ORDER BY start_date) AS next_plan
+  FROM subscriptions
+  WHERE EXTRACT(YEAR FROM start_date) = 2020) sub
+WHERE plan_id = 2
+AND next_plan = 1;
+```
+| count |
+| ----- |
+| 0     |
+
 ### Challenge Payment Question
 
 ### Outside The Box Questions
