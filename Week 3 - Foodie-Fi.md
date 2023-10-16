@@ -230,7 +230,3 @@ AND next_plan = 1;
 | count |
 | ----- |
 | 0     |
-
-### Challenge Payment Question
-
-### Outside The Box Questions
